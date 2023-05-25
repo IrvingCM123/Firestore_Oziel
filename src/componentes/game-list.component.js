@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import TutorialDataService from "../servicios/game.service";
+import TutorialDataService from "../services/game.service";
 import "../styles/Mostrar.css";
 
 import Videojuego from "./game.component";

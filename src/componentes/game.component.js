@@ -1,17 +1,11 @@
 import React, { Component } from "react";
-import firebase from "firebase/compat/app";
-import "firebase/firestore";
-import TutorialDataService from "../servicios/game.service";
+import CommentsComponent from "./comentarios";
+import ReactionsComponent from "./Like";
+import TutorialDataService from "../services/game.service";
 
-function ReactionButton({ reactionType, onClick, count }) {
-  return (
-    <button onClick={onClick}>
-      {reactionType}: {count}
-    </button>
-  );
-}
 
 export default class Videojuego extends Component {
+  
   constructor(props) {
     super(props);
     this.onChangeTitle = this.onChangeTitle.bind(this);
@@ -29,22 +23,7 @@ export default class Videojuego extends Component {
         published: false,
       },
       message: "",
-      reactions: {
-        like: 0,
-        love: 0,
-        haha: 0,
-        wow: 0,
-        sad: 0,
-        angry: 0,
-      },
-      comment: "",
     };
-    this.handleCommentChange = this.handleCommentChange.bind(this);
-    this.handleCommentSubmit = this.handleCommentSubmit.bind(this);
-  }
-
-  handleCommentChange(event) {
-    this.setState({ comment: event.target.value });
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -89,18 +68,15 @@ export default class Videojuego extends Component {
     }));
   }
 
-  handleReactionClick(reactionType) {
-    const newReactions = { ...this.state.reactions };
-    newReactions[reactionType]++;
-    this.setState({ reactions: newReactions });
+  onChangeURL(e) {
+    const url = e.target.value;
 
-    const itemRef = firebase
-      .firestore()
-      .collection("items")
-      .doc(this.state.currentTutorial.id);
-    itemRef.update({
-      [`${reactionType}_count`]: firebase.firestore.FieldValue.increment(1),
-    });
+    this.setState((prevState) => ({
+      currentTutorial: {
+        ...prevState.currentTutorial,
+        url: url,
+      },
+    }));
   }
 
   updatePublished(status) {
@@ -148,38 +124,17 @@ export default class Videojuego extends Component {
       });
   }
 
-  handleCommentSubmit(event) {
-    event.preventDefault();
-    const comment = {
-      content: this.state.comment,
-      date: new Date(),
-    };
-    firebase
-      .firestore()
-      .collection("CajaComentarios")
-      .doc(this.state.currentTutorial.id)
-      .collection("Comentarios")
-      .add(comment)
-      .then(() => {
-        console.log("Comentario guardado!");
-      })
-      .catch((error) => {
-        console.error("Error al guardar comentario: ", error);
-      });
-    this.setState({ comment: "" });
-  }
-
   render() {
-    const { currentTutorial, reactions, comment } = this.state;
+    const { currentTutorial } = this.state;
 
     return (
       <div>
-        <h4> Dinosaurio </h4>
+        <h4>Videojuegos</h4>
         {currentTutorial ? (
           <div className="edit-form">
             <form>
               <div className="form-group">
-                <label htmlFor="title">Title</label>
+                <label htmlFor="title">Titulo de la imagen</label>
                 <input
                   type="text"
                   className="form-control"
@@ -189,7 +144,7 @@ export default class Videojuego extends Component {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="description">Description</label>
+                <label htmlFor="description">Descripcion de la imagen</label>
                 <input
                   type="text"
                   className="form-control"
@@ -198,9 +153,10 @@ export default class Videojuego extends Component {
                   onChange={this.onChangeDescription}
                 />
               </div>
+
               <div className="form-group">
                 <label htmlFor="url"> Imagen: </label>
-                <img src={currentTutorial.url} alt="Hola"></img>
+                <img src={currentTutorial.url} alt="hola"></img>
               </div>
 
               <div className="form-group">
@@ -210,6 +166,7 @@ export default class Videojuego extends Component {
                 {currentTutorial.published ? "Published" : "Pending"}
               </div>
             </form>
+
             {currentTutorial.published ? (
               <button
                 className="badge badge-primary mr-2"
@@ -240,72 +197,14 @@ export default class Videojuego extends Component {
             >
               Update
             </button>
+            <p>{this.state.message}</p>
+            <CommentsComponent />
+            <ReactionsComponent />
           </div>
         ) : (
           <div>
             <br />
-            <p>Selecciona un videojuego</p>
-          </div>
-        )}
-
-        <div>
-          <ReactionButton
-            reactionType="Like"
-            onClick={() => this.handleReactionClick("like")}
-            count={reactions.like}
-          />
-          <ReactionButton
-            reactionType="Love"
-            onClick={() => this.handleReactionClick("love")}
-            count={reactions.love}
-          />
-          <ReactionButton
-            reactionType="Haha"
-            onClick={() => this.handleReactionClick("haha")}
-            count={reactions.haha}
-          />
-          <ReactionButton
-            reactionType="Wow"
-            onClick={() => this.handleReactionClick("wow")}
-            count={reactions.wow}
-          />
-          <ReactionButton
-            reactionType="Sad"
-            onClick={() => this.handleReactionClick("sad")}
-            count={reactions.sad}
-          />
-          <ReactionButton
-            reactionType="Angry"
-            onClick={() => this.handleReactionClick("angry")}
-            count={reactions.angry}
-          />
-        </div>
-
-        {currentTutorial ? (
-          <div className="edit-form">
-            <form>{/* existing form elements */}</form>
-            <div className="comment-form">
-              <form onSubmit={this.handleCommentSubmit}>
-                <div className="form-group">
-                  <label htmlFor="comment">Ingresa un comentario: </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="comment"
-                    value={comment}
-                    onChange={this.handleCommentChange}
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  Submit
-                </button>
-              </form>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <br />
-            <p>Selecciona un videojuego</p>
+            <p>Please click on a videojuego</p>
           </div>
         )}
       </div>

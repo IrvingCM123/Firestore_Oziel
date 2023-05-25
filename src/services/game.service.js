@@ -7,8 +7,8 @@ class TutorialDataService {
     return db;
   }
 
-  create(dinosaruio) {
-    return db.add(dinosaruio);
+  create(juego) {
+    return db.add(juego);
   }
 
   update(id, value) {
@@ -20,5 +20,5 @@ class TutorialDataService {
   }
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default new TutorialDataService();
+const GameServiceDataServiceInstance= new TutorialDataService();
+export default GameServiceDataServiceInstance
